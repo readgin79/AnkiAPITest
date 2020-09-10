@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Getting Started: Handling Form Submission</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<script th:src="@{/webjars/jquery/3.3.1-2/jquery.min.js}"></script>
+<script>
+$(document).ready(function(){
+	$(":button[value=新增]").click(function(){
+		$.ajax({
+		  url:"/anki",
+		  method:"POST",
+		  dataType : "text",
+		  async: false,
+		  contentType : "application/x-www-form-urlencoded; charset=UTF-8",
+		  data:$("#form").serialize(),
+		  success:function(res){
+			  var obj = JSON.parse(res);
+			  alert(obj.data);
+		  },
+		  error:function(err){
+			  alert(JSON.stringify(err));
+		  },
+		});
+	});
+});
+</script>
+<body>
+	<h1>新增Note</h1>
+    <form id="form" action="#" th:action="@{/anki}" th:object="${note}" method="post">
+    	<p>牌組: <input type="text" th:field="*{deckName}" /></p>
+        <p>類型: <input type="text" th:field="*{modelName}" /></p>
+        <p>正面: <input type="text" name="front" /></p>
+        <p>背面: <input type="text" name="back" /></p>
+        <p><input type="button" value="新增" /> <input type="reset" value="Reset" /></p>
+    </form>
+</body>
+</html>
+
+
+
+
