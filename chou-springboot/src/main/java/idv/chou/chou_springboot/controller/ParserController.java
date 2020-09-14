@@ -1,25 +1,36 @@
 package idv.chou.chou_springboot.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import idv.chou.chou_springboot.bean.Explanation;
 import idv.chou.chou_springboot.bean.Info;
 import idv.chou.chou_springboot.bean.Note;
 import idv.chou.chou_springboot.bean.Vocabulary;
+import idv.chou.chou_springboot.service.RedisService;
 
 @Controller
 public class ParserController {
 	
+	@Autowired
+    private RedisService redisService;
+	
+	private static final Logger LOGGER=LoggerFactory.getLogger(ParserController.class);
 	@Value("${dictionary.url}")
 	private String url;
 
@@ -84,9 +95,8 @@ public class ParserController {
 				infoary[i] = info;
 				voc = new Vocabulary(vocabulary, infoary);
 				
-				
-				//System.out.println("========================");
-				//System.out.println(voc);
+				LOGGER.info("========================");
+				LOGGER.info(voc.toString());
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -95,5 +105,34 @@ public class ParserController {
 
 		model.addAttribute("vocabulary", voc);
 		return "dictionary";
+	}
+	
+	//Redis
+	/*@PostMapping("/ankilist/{no}")
+	@ResponseBody
+	public String redis(@PathVariable String no)
+	{
+		 redisService.set("no", no);
+	     return "success";
+		
+	}*/
+	
+	@PostMapping("/ankilist")
+	@ResponseBody
+	public String setAnkilist(@RequestParam("vocabulary") String vocabulary) {
+		LOGGER.info("vocabulary: " + vocabulary);
+		redisService.lpush("templs", vocabulary);
+		 
+	    return "success";
+	}
+	
+	@GetMapping("/ankilist")
+	@ResponseBody
+	public String getAnkilist() {
+		int size = redisService.size("templs");
+		List ls = redisService.range("templs", 0, size);
+		//redisService.lpush("templs", vocabulary);
+		 
+	    return ls.toString();
 	}
 }

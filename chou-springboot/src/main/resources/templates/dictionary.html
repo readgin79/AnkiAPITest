@@ -7,40 +7,39 @@
 <script th:src="@{/webjars/jquery/3.3.1-2/jquery.min.js}"></script>
 <script>
 $(document).ready(function(){
-	$(":button[value=新增]").click(function(){
+	$(":button[name=add]").click(function(){
+		alert($(this).parent().html());
 		$.ajax({
-		  url:"/anki",
+		  url:"/ankilist",
 		  method:"POST",
 		  dataType : "text",
 		  async: false,
 		  contentType : "application/x-www-form-urlencoded; charset=UTF-8",
-		  data:$("#form").serialize(),
+		  data:{"vocabulary":$(this).parent().html()},
 		  success:function(res){
-			  var obj = JSON.parse(res);
-			  alert(obj.data);
+			  //var obj = JSON.parse(res);
+			  alert(res);
 		  },
 		  error:function(err){
-			  alert(JSON.stringify(err));
+			  alert(err);
 		  },
 		});
 	});
 });
 </script>
 <body>
-	<h1 th:text="${vocabulary.name}"></h1>
-	<table>
-		<ul>
-		   	<li th:each="info:${vocabulary.infos}">詞性： <span th:text="${info.pos}"></span><br>發音： <span th:text="${info.kk}"></span>
-		       	<ul>
-		        	<li th:each="explanation:${info.explanation}"><span th:text="${explanation.explanation}"></span><br><span th:text="${explanation.chinese}"></span>
-		        		<ul th:each="example:${explanation.example}">
-		        			<span th:text="${exampleStat.index+1}+'. '+${example}"></span>
-		        		</ul>
-		        	</li>
-		       	</ul>
-		   	</li>
-		</ul>
-	 </table>
+	<h1 th:text="${vocabulary.name}"></h1><button name="add">加入單字簿</button>
+	<ul>
+	   	<li th:each="info:${vocabulary.infos}"><br>詞性： <span th:text="${info.pos}"></span><br>發音： <span th:text="${info.kk}"></span>
+	       	<ul>
+	        	<li th:each="explanation:${info.explanation}"><span th:text="${explanation.explanation}"></span><br><span th:text="${explanation.chinese}"></span>
+	        		<ul th:each="example:${explanation.example}">
+	        			<span th:text="${exampleStat.index+1}+'. '+${example}"></span>
+	        		</ul>
+	        	</li>
+	       	</ul>
+	   	</li>
+	</ul>
 </body>
 </html>
 

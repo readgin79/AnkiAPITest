@@ -25,6 +25,7 @@ import idv.chou.chou_springboot.bean.Field;
 import idv.chou.chou_springboot.bean.Note;
 import idv.chou.chou_springboot.bean.Param;
 import idv.chou.chou_springboot.bean.ResponseBean;
+import idv.chou.chou_springboot.service.RedisService;
 import idv.chou.chou_springboot.util.HttpUtil;
 
 @Controller
@@ -40,7 +41,7 @@ public class RESTController {
 	
 	@Autowired
     private Gson gson;
-
+	
 	//查詢get
 	@GetMapping("/anki/{deck}")
 	@ResponseBody
@@ -93,7 +94,8 @@ public class RESTController {
 			responsebean.setData(res.getResult());
 			return responsebean.toString();
 		}
-		
 	}
+	
+	
 	
 }

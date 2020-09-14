@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- scan:當此屬性設置為true時，配置文件如果發生改變，將會被重新加載，默認值為true scanPeriod:設置監測配置文件是否有修改的時間間隔，如果沒有給出時間單位，默認單位是毫秒。 
+	當scan為true時，此屬性生效。默認的時間間隔為1分鐘。 debug:當此屬性設置為true時，將打印出logback內部日誌信息，實時查看logback運行狀態。默認值為false。 -->
+<configuration scan="true" scanPeriod="60 seconds"
+	debug="false">
+	<!-- 每個logger都關聯到logger上下文，默認上下文名稱為“default”。 但可以使用contextName標籤設置成其他名字，用於區分不同應用程序的記錄，如打印日誌如下中xiaobaiai 
+		10:39:28.964 xiaobaiai [main] DEBUG c.x.Test02HelloworldApplication - 簡單的日誌記錄測試 
+		: 1 + 2 = 3 -->
+	<contextName>chou_log</contextName>
+	<!-- property用來定義變量值的標籤，property標籤有兩個屬性，name和value；其中name的值是變量的名稱，value的值時變量定義的值 
+		這裡定義了log.path這個變量，下面會有引用這個變量 -->
+	<property name="log.path"
+		value="../logs/spring-log" />
+	<!--輸出到控制檯 -->
+	<appender name="console"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<!-- 定義過濾器，ERROR級別 -->
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %contextName [%thread] %logger{36}.%M - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<!--輸出到文件 -->
+	<appender name="file"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!-- 最新的log文件 -->
+		<file>${log.path}/log_newest.log</file>
+		<encoder>
+			<!-- ％d-以SimpleDateFormat允許的格式輸出日誌消息發生的時間 ％thread-輸出發生日誌消息的線程的名稱。 $-5level-輸出日誌消息的日誌記錄級別。 
+				％logger{36}-輸出發生日誌消息的包+類名。括號內的數字表示包+類名的最大長度。 ％M-輸出發生日誌消息的方法的名稱（性能較差，不建議生成環境使用） 
+				％msg-輸出實際的日誌消息 ％magenta()-將括號中包含的輸出的顏色設置為洋紅色（其他顏色可用）。 %highlight()-將括號中包含的輸出顏色設置為取決於日誌記錄級別（例如ERROR 
+				= red） -->
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %contextName [%thread] %logger{36}.%M - %msg%n</pattern>
+		</encoder>
+		<!-- 日誌文件分割設置 -->
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>
+				${log.path}/log_%d{yyyy-MM-dd}_%i.log
+			</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
+			<!-- 只保存最近10天日誌 -->
+			<maxHistory>10</maxHistory>
+			<!-- 定義日誌文件上限，如果所有日誌超過這個大小，則會刪除舊的日誌 -->
+			<totalSizeCap>100MB</totalSizeCap>
+		</rollingPolicy>
+	</appender>
+	<!-- root是根logger,不能有name和additivity屬性，是有一個level -->
+	<!-- appender是一個日誌打印的組件，這裡組件裡面定義了打印過濾的條件、打印輸出方式、滾動策略、編碼方式、打印格式等 如果我們不使用一個logger或者root的appender-ref指定某個具體的appender時，它就不會生效 -->
+	<root level="info">
+		<appender-ref ref="console" />
+		<appender-ref ref="file" />
+	</root>
+	<!-- logger標記用來設置某一個包或者具體的某一個類的日誌打印級別以及指定appender -->
+	<logger name="com.chou_log" level="WARN" additivity="false">
+		<appender-ref ref="console" />
+	</logger>
+</configuration>
