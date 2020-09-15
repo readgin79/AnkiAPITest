@@ -31,8 +31,12 @@ public class ParserController {
     private RedisService redisService;
 	
 	private static final Logger LOGGER=LoggerFactory.getLogger(ParserController.class);
+	
 	@Value("${dictionary.url}")
 	private String url;
+	
+	@Value("${redis.user}")
+	private String user;
 
 	//查詢get
 	@GetMapping("/dictionary/{vocabulary}")
@@ -121,7 +125,7 @@ public class ParserController {
 	@ResponseBody
 	public String setAnkilist(@RequestParam("vocabulary") String vocabulary) {
 		LOGGER.info("vocabulary: " + vocabulary);
-		redisService.lpush("templs", vocabulary);
+		redisService.lpush(user, vocabulary);
 		 
 	    return "success";
 	}
@@ -129,8 +133,8 @@ public class ParserController {
 	@GetMapping("/ankilist")
 	@ResponseBody
 	public String getAnkilist() {
-		int size = redisService.size("templs");
-		List ls = redisService.range("templs", 0, size);
+		int size = redisService.size(user);
+		List ls = redisService.range(user, 0, size);
 		//redisService.lpush("templs", vocabulary);
 		 
 	    return ls.toString();

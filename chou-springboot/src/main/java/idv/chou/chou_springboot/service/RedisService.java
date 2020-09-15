@@ -1,9 +1,11 @@
 package idv.chou.chou_springboot.service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -12,12 +14,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RedisService {
+	@Value("${redis.expireseconds}")
+	private Long expireseconds;
+	
+	private RedisSerializer redisSerializer = new  StringRedisSerializer();
+	
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     public void set(String key, Object value) {
         //更改在redis裡面檢視key編碼問題
-        RedisSerializer redisSerializer = new  StringRedisSerializer();
-        redisTemplate.setKeySerializer(redisSerializer);
+    	redisinit(redisTemplate);
         ValueOperations<String, Object> vo =  redisTemplate.opsForValue();
         vo.set(key, value);
     }
@@ -28,9 +34,15 @@ public class RedisService {
     }
     
     public void lpush(String key, String value) {
-    	RedisSerializer redisSerializer = new  StringRedisSerializer();
-        redisTemplate.setKeySerializer(redisSerializer);
+    	redisinit(redisTemplate);
         redisTemplate.opsForList().leftPush(key, value);
+        redisTemplate.expire(key, expireseconds, TimeUnit.SECONDS);
+    }
+    
+    public void lpush(String key, String value, long expireseconds) {
+    	redisinit(redisTemplate);
+        redisTemplate.opsForList().leftPush(key, value);
+        redisTemplate.expire(key, expireseconds, TimeUnit.SECONDS);
     }
     
     public Object index(String key, int index) {
@@ -55,5 +67,9 @@ public class RedisService {
     
     public void trim(String key, Integer start, Integer end) {
         redisTemplate.opsForList().trim(key, start, end);
+    }
+    
+    public void redisinit(RedisTemplate redisTemplate) {
+        redisTemplate.setKeySerializer(redisSerializer);
     }
 }
